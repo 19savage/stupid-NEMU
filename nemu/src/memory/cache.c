@@ -61,7 +61,7 @@ uint32_t cache2_read(hwaddr_t addr){
 	srand(i);
 	i = BLOCK_L2_WAY_SIZE*set + rand()% BLOCK_L2_WAY_SIZE;
 	if(cache2[i].dirty && cache2[i].valid){
-		uint32_t addr2 = (cache2[i].tag << (BLOCK_L2_SET_SIZE_B + BLOCK_L2_SIZE_B));
+		uint32_t addr2 = (cache2[i].tag << (BLOCK_L2_SET_SIZE_B + BLOCK_L2_SIZE_B)) | (set)<< BLOCK_L2_SIZE_B;
 		uint8_t mask[2*BURST_LEN];
 		memset(mask,1,2*BURST_LEN);
 		int j;
