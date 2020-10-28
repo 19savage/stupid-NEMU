@@ -7,6 +7,8 @@
 #include "data-mov/movext.h"
 #include "data-mov/cltd.h"
 #include "data-mov/leave.h"
+#include "data-mov/lgdt.h"
+
 
 #include "arith/cmp.h"
 #include "arith/dec.h"
