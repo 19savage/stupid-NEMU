@@ -18,7 +18,7 @@ uint32_t get_ucr3();
 
 uint32_t loader() {
 	Elf32_Ehdr *elf;
-	Elf32_Phdr *ph = NULL, *eph;
+	Elf32_Phdr *ph = NULL;
 
 	uint8_t buf[4096];
 
@@ -37,10 +37,12 @@ uint32_t loader() {
 
 	/* Load each program segment */
 	//panic("please implement me");
-	for(ph = (void *)buf + elf->e_phoff, eph = ph + elf->e_phnum; ph < eph; ph ++) {
+	int i;
+	ph = (void*)(buf + elf->e_phoff);
+	for(i =0 ; i < elf->e_phnum ; i++ , ph++ ) {
 		/* Scan the program header table, load each segment into memory */
 		if(ph->p_type == PT_LOAD) {
-
+			ph->p_vaddr = mm_malloc(ph->p_vaddr,ph->p_memsz);
                         uint32_t pa = ph->p_vaddr;
 
 			/* TODO: read the content of the segment from the ELF file 
