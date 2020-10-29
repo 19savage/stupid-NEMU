@@ -1,4 +1,5 @@
 #include "cpu/exec/template-start.h"
+#include "memory/memory.h"
 
 #define instr mov
 
@@ -29,54 +30,49 @@ make_helper(concat(mov_moffs2a_, SUFFIX)) {
 }
 
 #if DATA_BYTE == 4
-make_helper(concat(mov_cr2r_,SUFFIX)){
-	uint8_t opcode = instr_fetch(eip+1 , 1 );
-	
-	if(opcode == 0xc0 ) {
+/* Change CR0 and CR3 */
+make_helper(mov_cr2r) {
+	uint8_t opcode = instr_fetch(eip + 1, 1);
+	if(opcode == 0xc0) {
 		cpu.eax = cpu.cr0.val;
-		print_asm("mov %%cr0,%%%s",REG_NAME(R_EAX));
-	}
-	else if(opcode == 0xd8){
+		print_asm("mov %%%s,%%cr0", REG_NAME(R_EAX));
+	} else if(opcode == 0xd8) {
 		cpu.eax = cpu.cr3.val;
-		print_asm("mov %%cr3,%%%s",REG_NAME(R_EAX));
+		print_asm("mov %%%s,%%cr3", REG_NAME(R_EAX));
 	}
-	return 2;
+	return 2; //yinggaiwusuoweiba 
+	// xingba  haoxiangbushiwusuoweide
 }
-
-make_helper(concat(mov_r2cr_,SUFFIX)){
-	uint8_t opcode = instr_fetch(eip + 1,1);
-	
+make_helper(mov_r2cr) {
+	uint8_t opcode = instr_fetch(eip + 1, 1);
 	if(opcode == 0xc0) {
 		cpu.cr0.val = cpu.eax;
 		print_asm("mov %%%s,%%cr0", REG_NAME(R_EAX));
-	}
-	else if(opcode == 0xd8){
+	} else if(opcode == 0xd8) {
 		cpu.cr3.val = cpu.eax;
+		//resetTLB();
 		print_asm("mov %%%s,%%cr3", REG_NAME(R_EAX));
 	}
-
-	return 2;
+	return 2; //yinggaiwusuoweiba
+	// xingba  haoxiangbushiwusuoweide
 }
-#endif 
-
+#endif
 
 #if DATA_BYTE == 2
-make_helper(mov_seg){
-	
-	uint8_t opcode = instr_fetch(eip+1,1);
-	
-	if(opcode == 0xd8){
-		cpu.ds.selector = reg_w(R_EAX);
-		seg_do(R_DS);
-		print_asm("mov %%%s, ds", REG_NAME(R_EAX));
-	}
-	else if(opcode == 0xc0){
-		cpu.es.selector = reg_w(R_EAX);
-		seg_do(R_ES);
-	}
-	else if(opcode == 0xd0){
-		cpu.ss.selector = reg_w(R_EAX);
-		seg_do(R_SS);
+make_helper(mov_seg) {
+	uint8_t opcode = instr_fetch(eip + 1, 1);
+	if(opcode == 0xd8) {
+		cpu.ds.val = reg_w(R_EAX);
+		sreg_load(R_DS);
+		print_asm("mov %%%s,ds",REG_NAME(R_EAX));
+	} else if(opcode == 0xc0) {
+		cpu.es.val = reg_w(R_EAX);
+		sreg_load(R_ES);
+		print_asm("mov %%%s,es",REG_NAME(R_EAX));
+	} else if(opcode == 0xd0) {
+		cpu.ss.val = reg_w(R_EAX);
+		sreg_load(R_SS);
+		print_asm("mov %%%s,ss",REG_NAME(R_EAX));
 	}
 	return 2;
 }

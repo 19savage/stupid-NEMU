@@ -1,3 +1,4 @@
+
 #ifndef __REG_H__
 #define __REG_H__
 
@@ -7,32 +8,83 @@
 enum { R_EAX, R_ECX, R_EDX, R_EBX, R_ESP, R_EBP, R_ESI, R_EDI };
 enum { R_AX, R_CX, R_DX, R_BX, R_SP, R_BP, R_SI, R_DI };
 enum { R_AL, R_CL, R_DL, R_BL, R_AH, R_CH, R_DH, R_BH };
-enum { R_ES, R_CS, R_SS, R_DS, R_FS, R_GS};
+enum { R_ES, R_CS, R_SS, R_DS, R_FS, R_GS }; //REG
+
 /* TODO: Re-organize the `CPU_state' structure to match the register
  * encoding scheme in i386 instruction format. For example, if we
  * access cpu.gpr[3]._16, we will get the `bx' register; if we access
  * cpu.gpr[1]._8[1], we will get the 'ch' register. Hint: Use `union'.
  * For more details about the register encoding scheme, see i386 manual.
  */
+
+typedef struct {
+	uint32_t base_addr;
+	uint16_t seg_limit;
+} GDTR;
+
+typedef struct {
+	uint32_t base_addr;
+	uint16_t seg_limit;
+} IDTR;
+
 typedef struct {
 	union {
-	    uint32_t base_addr;
-	    struct {
-		uint32_t base_addr1:16;
-		uint32_t base_addr2:8;
-		uint32_t base_addr3:8;
+		struct {
+			uint8_t RPL : 2;
+			uint8_t TL : 1;
+			uint16_t index : 13;
 		};
+		uint16_t val;
+	};
+	/*struct {
+		uint32_t base;
+		uint32_t limit;
+	} cache;*/
+	uint32_t cache_base;
+	uint32_t cache_limit;
+} SREG; //48-bits cache
+
+typedef struct {
+	union {
+		struct {
+			uint16_t limit1;
+			uint16_t base1;
+		};
+		uint32_t first;
 	};
 	union {
-	    uint32_t seg_limit;
-	    struct {
-		uint32_t seg_limit1 :16;
-		uint32_t seg_limit2 :4;
-		uint32_t seg_limit3 :12;
+		struct {
+			uint32_t base2 	: 8;
+			uint32_t type : 5;
+			uint32_t dpl : 2;
+			uint32_t p :1 ;
+			uint32_t limit2	: 4;
+			uint32_t avl : 1;
+			uint32_t : 1;
+			uint32_t b : 1;
+			uint32_t g : 1;
+			uint32_t base3 : 8;
 		};
+		uint32_t second;
+	};	
+} SegDescriptor;
+
+typedef struct {
+	union {
+		struct {
+			uint32_t p 	:1;
+			uint32_t rw	:1;
+			uint32_t us	:1;
+			uint32_t 	:2;
+			uint32_t a	:1;
+			uint32_t d 	:1;
+			uint32_t 	:2;
+			uint32_t avail	:3;
+			uint32_t addr 	:20;
+		};
+		uint32_t page_val;
 	};
-	uint16_t selector;
-}SREG;
+}PageDescriptor;
 
 typedef struct {
      union{
@@ -72,51 +124,23 @@ typedef struct {
 		};
 		uint32_t val;
 	} eflags;
-	
+	 
 	CR0 cr0;
 	CR3 cr3;
+	GDTR gdtr;
+	IDTR idtr;
+
 	union {
-	  SREG sr[6];
-	  struct {
-		SREG es,cs,ss,ds,fs,gs;
+		SREG sr[6];
+		struct {
+			SREG es, cs, ss, ds, fs, gs;
 		};
 	};
-	
-	struct GDTR {
-		uint32_t base_addr;
-		uint16_t seg_limit;
-	}gdtr;
-	           
+
 } CPU_state;
 
-typedef struct {
-	union {
-		struct {
-			uint32_t seg_limit1 : 16;
-			uint32_t base_addr1 : 16;
-		};
-		uint32_t first;
-	};
-	union {
-		struct {
-			uint32_t base_addr2 : 8;
-			uint32_t type       : 5;
-			uint32_t dpl	    : 2;
-			uint32_t p	    : 1;
-			uint32_t seg_limit2 : 4;
-			uint32_t avl	    : 1;
-			uint32_t 	    : 1;
-			uint32_t b	    : 1;
-			uint32_t g	    : 1;
-			uint32_t base_addr3 : 8;
-			};
-		uint32_t second;
-	};
-}SEG_descriptor;
-
 extern CPU_state cpu;
-SEG_descriptor* seg_des;
-void seg_do(uint8_t sreg);
+
 static inline int check_reg_index(int index) {
 	assert(index >= 0 && index < 8);
 	return index;

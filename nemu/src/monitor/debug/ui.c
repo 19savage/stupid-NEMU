@@ -2,6 +2,7 @@
 #include "monitor/expr.h"
 #include "monitor/watchpoint.h"
 #include "nemu.h"
+#include "memory/memory.h"
 
 #include <stdlib.h>
 #include <readline/readline.h>
@@ -73,7 +74,7 @@ static int cmd_x(char *args) {
 					printf("0x%08x: ", addr);
 				}
 
-				printf("0x%08x ", swaddr_read(addr, 4,R_DS));
+				printf("0x%08x ", swaddr_read(addr, 4, R_DS));
 				addr += 4;
 				if(i % 4 == 3) {
 					printf("\n");
@@ -133,16 +134,29 @@ static int cmd_bt(char *args) {
 	uint32_t eip = cpu.eip;
 	int i = 0;
 	while(ebp != 0) {
-		sf.args[0] = swaddr_read(ebp + 8, 4,R_SS);
-		sf.args[1] = swaddr_read(ebp + 12, 4,R_SS);
-		sf.args[2] = swaddr_read(ebp + 16, 4,R_SS);
-		sf.args[3] = swaddr_read(ebp + 20, 4, R_SS );
+		sf.args[0] = swaddr_read(ebp + 8, 4, R_SS);
+		sf.args[1] = swaddr_read(ebp + 12, 4, R_SS);
+		sf.args[2] = swaddr_read(ebp + 16, 4, R_SS);
+		sf.args[3] = swaddr_read(ebp + 20, 4, R_SS);
 
 		printf("#%d 0x%08x in %s (0x%08x 0x%08x 0x%08x 0x%08x)\n", i, eip, find_fun_name(eip), sf.args[0], sf.args[1], sf.args[2], sf.args[3]);
 		i ++;
-		eip = swaddr_read(ebp + 4,4,R_SS);
-		ebp = swaddr_read(ebp, 4,R_SS);
+		eip = swaddr_read(ebp + 4, 4, R_SS);
+		ebp = swaddr_read(ebp, 4, R_SS);
 	}
+	return 0;
+}
+
+/* Add page-trans result*/
+static int cmd_page(char *args){
+	if(args == NULL) return 0;
+	lnaddr_t lnaddr;
+	sscanf(args, "%x", &lnaddr);
+	hwaddr_t hwaddr = page_translate(lnaddr, 1);
+	if(!(cpu.cr0.protect_enable && cpu.cr0.paging)) {
+		printf("Page Addr Transform Fail!\n");
+	}
+	else printf("Page-trans Result: 0x%x -> 0x%x\n", lnaddr, hwaddr);
 	return 0;
 }
 
@@ -174,7 +188,8 @@ static struct {
         { "p", "Evaluate the value of expression", cmd_p },
 	{ "w", "Set watchpoint", cmd_w },
 	{ "d", "Delete watchpoint", cmd_d },
-	{ "bt", "Display backtrace", cmd_bt }
+	{ "bt", "Display backtrace", cmd_bt },
+	{ "page", "Print page addr translation result", cmd_page}
 
 };
 

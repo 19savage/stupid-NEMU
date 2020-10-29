@@ -1,4 +1,5 @@
 #include "nemu.h"
+#include "memory/cache.h"
 
 #define ENTRY_START 0x100000
 
@@ -75,6 +76,12 @@ static void load_entry() {
 	fclose(fp);
 }
 
+static void init_CR0() {
+	cpu.cr0.protect_enable = 0;
+	//cpu.cr0.paging = 0;
+	cpu.cr0.val = cpu.cr3.val = 0;
+}
+
 void restart() {
 	/* Perform some initialization to restart a program */
 #ifdef USE_RAMDISK
@@ -87,12 +94,20 @@ void restart() {
 
 	/* Set the initial instruction pointer. */
 	cpu.eip = ENTRY_START;
+	cpu.eflags.CF = 1;
+	cpu.eflags.PF = cpu.eflags.ZF = cpu.eflags.SF = cpu.eflags.IF = cpu.eflags.DF = cpu.eflags.OF = 0;
         cpu.eflags.val = 0x2;
-	cpu.cr0.protect_enable = 0 ;
-	cpu.cr0.paging = 0;
-	cpu.cs.base_addr = 0;
-	cpu.cs.seg_limit = 0xffffffff;
+
 	/* Initialize DRAM. */
-	init_cache();
 	init_ddr3();
+
+	/* Initialize Cache*/
+	init_cache();
+
+	/* Initialize CR0*/
+	init_CR0();
+
+	/* To use CS register*/
+	cpu.cs.cache_base = 0;
+	cpu.cs.cache_limit = 0xffffffff;
 }
