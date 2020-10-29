@@ -26,7 +26,6 @@ void init() {
 	
  * Before setting up correct paging, no global variable cs*/
 	init_page();
-	set_bp();
 	/* After paging is enabled, transform %esp to virtual address. */
 	asm volatile("addl %0, %%esp" : : "i"(KOFFSET));
 #endif
