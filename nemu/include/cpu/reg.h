@@ -64,7 +64,7 @@ typedef struct {
 		};
 	};
 
-	TabReg gdtr;
+	TabReg gdtr,idtr;
 	
 	CR0 cr0;
 	uint32_t cr2;
