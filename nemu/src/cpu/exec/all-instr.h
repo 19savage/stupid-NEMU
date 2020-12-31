@@ -7,8 +7,9 @@
 #include "data-mov/movext.h"
 #include "data-mov/cltd.h"
 #include "data-mov/leave.h"
-#include "data-mov/lidt.h"
 #include "data-mov/mov-sreg.h"
+#include "data-mov/lidt.h"
+#include "data-mov/cmovcc.h"
 
 #include "arith/cmp.h"
 #include "arith/dec.h"
@@ -23,6 +24,7 @@
 #include "arith/adc.h"
 #include "arith/sbb.h"
 
+
 #include "logic/and.h"
 #include "logic/or.h"
 #include "logic/not.h"
@@ -33,17 +35,22 @@
 #include "logic/shrd.h"
 #include "logic/test.h"
 #include "logic/setcc.h"
+#include "logic/bt.h"
 
-#include "intr/cli.h"
+
 #include "intr/int.h"
-#include "intr/iret.h"
-#include "intr/popa.h"
 #include "intr/pusha.h"
+#include "intr/popa.h"
+#include "intr/iret.h"
+#include "intr/cli.h"
 
 #include "control/call.h"
 #include "control/ret.h"
 #include "control/jcc.h"
 #include "control/jmp.h"
+#include "control/js.h"
+#include "control/jns.h"
+#include "control/jae.h"
 
 #include "string/rep.h"
 #include "string/movs.h"

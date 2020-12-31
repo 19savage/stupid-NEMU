@@ -3,4 +3,5 @@
 
 make_helper(setne);
 
+make_helper(sete);
 #endif

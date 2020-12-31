@@ -9,3 +9,5 @@
 	}
 
 make_setcc_helper(ne)
+
+make_setcc_helper(e)

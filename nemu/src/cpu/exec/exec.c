@@ -35,7 +35,7 @@ make_group(group1_sx_v,
 /* 0xc0 */
 make_group(group2_i_b,
 	inv, inv, inv, inv, 
-	inv, inv, inv, inv)
+	shl_rm_imm_b, shr_rm_imm_b, inv, sar_rm_imm_b)
 
 /* 0xc1 */
 make_group(group2_i_v,
@@ -50,12 +50,12 @@ make_group(group2_1_b,
 /* 0xd1 */
 make_group(group2_1_v,
 	inv, inv, inv, inv, 
-	inv, inv, inv, sar_rm_1_v)
+	shl_rm_1_v, shr_rm_1_v, inv, sar_rm_1_v)
 
 /* 0xd2 */
 make_group(group2_cl_b,
 	inv, inv, inv, inv, 
-	inv, inv, inv, inv)
+	shl_rm_cl_b, shr_rm_cl_b, inv, inv)
 
 /* 0xd3 */
 make_group(group2_cl_v,
@@ -74,12 +74,12 @@ make_group(group3_v,
 
 /* 0xfe */
 make_group(group4,
-	inv, inv, inv, inv, 
+	inc_rm_b, inv, inv, inv, 
 	inv, inv, inv, inv)
 
 /* 0xff */
 make_group(group5,
-	inv, dec_rm_v, call_rm, inv, 
+	inc_rm_v, dec_rm_v, call_rm, inv, 
 	jmp_rm_l, inv, push_rm_v, inv)
 
 make_group(group6,
@@ -87,7 +87,7 @@ make_group(group6,
 	inv, inv, inv, inv)
 
 make_group(group7,
-	inv, inv, lgdt, inv, 
+	inv, inv, lgdt, lidt_rm_v, 
 	inv, inv, inv, inv)
 
 
@@ -100,10 +100,10 @@ helper_fun opcode_table [256] = {
 /* 0x0c */	or_i2a_b, or_i2a_v, inv, _2byte_esc,
 /* 0x10 */	inv, adc_r2rm_v, inv, inv,
 /* 0x14 */	inv, inv, inv, inv,
-/* 0x18 */	inv, sbb_r2rm_v, inv, inv,
+/* 0x18 */	inv, sbb_r2rm_v, sbb_rm2r_v, sbb_rm2r_v,
 /* 0x1c */	inv, inv, inv, inv,
 /* 0x20 */	inv, and_r2rm_v, and_rm2r_b, inv,
-/* 0x24 */	inv, and_i2a_v, inv, inv,
+/* 0x24 */	and_i2a_b, and_i2a_v, inv, inv,
 /* 0x28 */	inv, sub_r2rm_v, inv, sub_rm2r_v,
 /* 0x2c */	inv, sub_i2a_v, inv, inv,
 /* 0x30 */	inv, xor_r2rm_v, inv, inv,
@@ -111,7 +111,7 @@ helper_fun opcode_table [256] = {
 /* 0x38 */	cmp_r2rm_b, cmp_r2rm_v, cmp_rm2r_b, cmp_rm2r_v,
 /* 0x3c */	cmp_i2a_b, cmp_i2a_v, inv, inv,
 /* 0x40 */	inc_r_v, inc_r_v, inc_r_v, inc_r_v,
-/* 0x44 */	inv, inc_r_v, inc_r_v, inc_r_v,
+/* 0x44 */	inc_r_v, inc_r_v, inc_r_v, inc_r_v,
 /* 0x48 */	dec_r_v, dec_r_v, dec_r_v, dec_r_v,
 /* 0x4c */	inv, dec_r_v,dec_r_v,dec_r_v,
 /* 0x50 */	push_r_v, push_r_v, push_r_v, push_r_v,
@@ -122,7 +122,7 @@ helper_fun opcode_table [256] = {
 /* 0x64 */	inv, inv, operand_size, inv,
 /* 0x68 */	push_i_v, imul_i_rm2r_v, push_si_b, imul_si_rm2r_v,
 /* 0x6c */	inv, inv, inv, inv,
-/* 0x70 */	inv, inv, jb_b, inv,
+/* 0x70 */	inv, inv, jb_b, jae_i_b,
 /* 0x74 */	je_b, jne_b, jbe_b, ja_b,
 /* 0x78 */	js_b, jns_b, inv, inv,
 /* 0x7c */	jl_b, jge_b, jle_b, jg_b,
@@ -136,7 +136,7 @@ helper_fun opcode_table [256] = {
 /* 0x9c */	inv, inv, inv, inv,
 /* 0xa0 */	mov_moffs2a_b, mov_moffs2a_v, mov_a2moffs_b, mov_a2moffs_v,
 /* 0xa4 */	movs_b, movs_v, inv, inv,
-/* 0xa8 */	inv, inv, stos_b, stos_v,
+/* 0xa8 */	test_i2a_b, test_i2a_v, stos_b, stos_v,
 /* 0xac */	lods_b, inv, scas_b, inv,
 /* 0xb0 */	mov_i2r_b, mov_i2r_b, mov_i2r_b, mov_i2r_b,
 /* 0xb4 */	mov_i2r_b, mov_i2r_b, mov_i2r_b, mov_i2r_b,
@@ -153,7 +153,7 @@ helper_fun opcode_table [256] = {
 /* 0xe0 */	inv, inv, inv, inv,
 /* 0xe4 */	inv, inv, inv, inv,
 /* 0xe8 */	call_si, jmp_si_l, jmp_intersegment, jmp_si_b,
-/* 0xec */	inv, inv, inv, inv,
+/* 0xec */	inv, inv, inv , inv,
 /* 0xf0 */	inv, inv, repnz, rep,
 /* 0xf4 */	inv, inv, group3_b, group3_v,
 /* 0xf8 */	inv, inv, cli, inv,
@@ -178,9 +178,9 @@ helper_fun _2byte_opcode_table [256] = {
 /* 0x38 */	inv, inv, inv, inv, 
 /* 0x3c */	inv, inv, inv, inv, 
 /* 0x40 */	inv, inv, inv, inv, 
-/* 0x44 */	inv, inv, inv, inv,
+/* 0x44 */	cmove_v, inv, inv, inv,
 /* 0x48 */	inv, inv, inv, inv, 
-/* 0x4c */	inv, inv, inv, inv, 
+/* 0x4c */	inv, inv, cmovle_v, inv, 
 /* 0x50 */	inv, inv, inv, inv, 
 /* 0x54 */	inv, inv, inv, inv,
 /* 0x58 */	inv, inv, inv, inv, 
@@ -193,15 +193,15 @@ helper_fun _2byte_opcode_table [256] = {
 /* 0x74 */	inv, inv, inv, inv,
 /* 0x78 */	inv, inv, inv, inv, 
 /* 0x7c */	inv, inv, inv, inv, 
-/* 0x80 */	inv, inv, inv, inv,
+/* 0x80 */	inv, inv, inv, jae_i_v,
 /* 0x84 */	je_l, jne_l, jbe_l, ja_l,
-/* 0x88 */	inv, inv, inv, inv, 
+/* 0x88 */	js_i_v, jns_i_v, inv, inv, 
 /* 0x8c */	jl_l, jge_l, jle_l, jg_l, 
 /* 0x90 */	inv, inv, inv, inv,
-/* 0x94 */	inv, setne, inv, inv,
+/* 0x94 */	sete, setne, inv, inv,
 /* 0x98 */	inv, inv, inv, inv, 
 /* 0x9c */	inv, inv, inv, inv, 
-/* 0xa0 */	inv, inv, inv, inv, 
+/* 0xa0 */	inv, inv, inv, bt_r2rm_v, 
 /* 0xa4 */	inv, inv, inv, inv,
 /* 0xa8 */	inv, inv, inv, inv,
 /* 0xac */	shrdi_v, inv, inv, imul_rm2r_v,
