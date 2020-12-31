@@ -6,10 +6,17 @@
 
 uint32_t dram_read(hwaddr_t, size_t);
 void dram_write(hwaddr_t, size_t, uint32_t);
+int is_mmio(hwaddr_t);
+uint32_t mmio_read(hwaddr_t, size_t, int);
+void mmio_write(hwaddr_t, size_t, uint32_t, int);
 
 /* Memory accessing interfaces */
 
 uint32_t hwaddr_read(hwaddr_t addr, size_t len) {
+	int ioflag = is_mmio(addr);
+	if (~ioflag){
+		return mmio_read(addr, len, ioflag) & (~0u >> ((4 - len) << 3));
+	}
 #ifdef ENABLE_CACHE
 	return cache_read(addr, len, &L1_dcache) & (~0u >> ((4 - len) << 3));
 #else
@@ -18,6 +25,11 @@ uint32_t hwaddr_read(hwaddr_t addr, size_t len) {
 }
 
 void hwaddr_write(hwaddr_t addr, size_t len, uint32_t data) {
+	int ioflag = is_mmio(addr);
+	if(~ioflag) {
+		mmio_write(addr, len, data, ioflag);
+		return;
+	}
 #ifdef ENABLE_CACHE
 	cache_write(addr, len, data, &L1_dcache);
 #else

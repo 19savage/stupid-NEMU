@@ -51,7 +51,11 @@ uint32_t loader() {
 			/* TODO: read the content of the segment from the ELF file 
 			 * to the memory region [VirtAddr, VirtAddr + FileSiz)
 			 */
-			ramdisk_read((void *)pa, ELF_OFFSET_IN_DISK + ph->p_offset, ph->p_filesz); 
+#ifdef HAS_DEVICE
+			ide_read((void *)pa, ELF_OFFSET_IN_DISK + ph->p_offset, ph->p_filesz);
+#else
+			ramdisk_read((void *)pa, ELF_OFFSET_IN_DISK + ph->p_offset, ph->p_filesz);
+#endif 
 			 
 			/* TODO: zero the memory region 
 			 * [VirtAddr + FileSiz, VirtAddr + MemSiz)
@@ -72,10 +76,10 @@ uint32_t loader() {
 #ifdef IA32_PAGE
 	mm_malloc(KOFFSET - STACK_SIZE, STACK_SIZE);
 
-/*#ifdef HAS_DEVICE
+#ifdef HAS_DEVICE
 	create_video_mapping();
-#endif*/
-	create_video_mapping();
+#endif
+	//create_video_mapping();
 
 	write_cr3(get_ucr3());
 #endif
