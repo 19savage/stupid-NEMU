@@ -26,6 +26,19 @@ void load_sreg(uint8_t sreg, uint16_t sel) {
 	cpu.sreg[sreg].soft_use = s->soft_use;
 }
 
+void load_sreg_cache(uint8_t sreg){
+	uint32_t gdt = cpu.gdtr.base;
+	gdt += cpu.sreg[sreg].index << 3;
+	SegmentDes sdp;
+	sdp.first = lnaddr_read(gdt ,4);
+	sdp.second = lnaddr_read(gdt + 4 , 4);
+	uint32_t base = (((uint32_t)sdp.base2)<<16) |sdp.base1 | (((uint32_t) sdp.base3) << 24);
+	uint32_t limit = (((uint32_t)sdp.limit2) << 16) | sdp.limit1;
+	if(sdp.g) limit <<= 12;
+	cpu.sreg[sreg].limit = limit;
+	cpu.sreg[sreg].base =base ;
+}
+
 lnaddr_t segment_translate(swaddr_t addr, uint8_t sreg) {
 #ifdef DEBUG
 	assert(sreg < 6);

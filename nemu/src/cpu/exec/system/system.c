@@ -20,8 +20,8 @@ make_helper(lgdt) {
 
 	print_asm("lidt %s", op_src->str);
 	return len + 1;
-}*/
-
+}
+*/
 make_helper(mov_r2cr) {
 	int len = decode_r2rm_l(eip + 1);
 	assert(op_dest->type == OP_TYPE_REG);

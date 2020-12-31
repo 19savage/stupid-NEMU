@@ -72,6 +72,8 @@ typedef union PageTableEntry {
 
 typedef PTE (*PT) [NR_PTE];
 
+void load_sreg_cache(uint8_t);
+
 /* the 64bit segment descriptor */
 typedef struct SegmentDescriptor {
 	uint32_t limit_15_0          : 16;

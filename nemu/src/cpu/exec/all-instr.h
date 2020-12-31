@@ -7,6 +7,7 @@
 #include "data-mov/movext.h"
 #include "data-mov/cltd.h"
 #include "data-mov/leave.h"
+#include "data-mov/lidt.h"
 #include "data-mov/mov-sreg.h"
 
 #include "arith/cmp.h"
@@ -32,6 +33,12 @@
 #include "logic/shrd.h"
 #include "logic/test.h"
 #include "logic/setcc.h"
+
+#include "intr/cli.h"
+#include "intr/int.h"
+#include "intr/iret.h"
+#include "intr/popa.h"
+#include "intr/pusha.h"
 
 #include "control/call.h"
 #include "control/ret.h"

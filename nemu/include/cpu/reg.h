@@ -17,6 +17,26 @@ enum {R_ES, R_CS, R_SS, R_DS, R_FS, R_GS};
  * cpu.gpr[1]._8[1], we will get the 'ch' register. Hint: Use `union'.
  * For more details about the register encoding scheme, see i386 manual.
  */
+typedef struct GateDesc {
+	union {
+		struct {
+			uint16_t offset1;
+			uint16_t selector;
+		};
+		uint32_t value1;
+	};
+	union {
+		struct {
+			uint8_t blank;
+			uint32_t type :4;
+			uint32_t system : 1;
+			uint32_t plevel : 2;
+			uint32_t present: 1;
+			uint32_t offset2: 16;
+		};
+		uint32_t value2;
+	};
+}GATE;
 
 typedef struct {
      union{
@@ -64,7 +84,8 @@ typedef struct {
 		};
 	};
 
-	TabReg gdtr,idtr;
+	TabReg gdtr;
+	IdReg idtr;
 	
 	CR0 cr0;
 	uint32_t cr2;
