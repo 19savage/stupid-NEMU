@@ -24,7 +24,6 @@
 #include "arith/adc.h"
 #include "arith/sbb.h"
 
-
 #include "logic/and.h"
 #include "logic/or.h"
 #include "logic/not.h"
@@ -36,13 +35,6 @@
 #include "logic/test.h"
 #include "logic/setcc.h"
 #include "logic/bt.h"
-
-
-#include "intr/int.h"
-#include "intr/pusha.h"
-#include "intr/popa.h"
-#include "intr/iret.h"
-#include "intr/cli.h"
 
 #include "control/call.h"
 #include "control/ret.h"
@@ -65,3 +57,14 @@
 #include "special/special.h"
 
 #include "system/system.h"
+
+#include "intr/int.h"
+#include "intr/pusha.h"
+#include "intr/popa.h"
+#include "intr/iret.h"
+#include "intr/cli.h"
+
+#include "io/in.h"
+#include "io/out.h"
+#include "io/hlt.h"
+#include "io/sti.h"

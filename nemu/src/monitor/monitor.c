@@ -13,6 +13,8 @@ void init_ddr3();
 void make_all_cache();
 void make_all_tlb();
 void init_all_cache();
+void init_device();
+void init_sdl();
 
 FILE *log_fp = NULL;
 
@@ -43,6 +45,12 @@ void init_monitor(int argc, char *argv[]) {
 
 	make_all_cache();
         make_all_tlb();
+
+	/* Initialize Devices and SDL*/
+	#ifdef HAS_DEVICE
+		init_device();
+		init_sdl();
+	#endif
 
 	/* Display welcome message. */
 	welcome();

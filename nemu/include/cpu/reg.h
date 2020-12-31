@@ -87,6 +87,8 @@ typedef struct {
 	TabReg gdtr;
 	IdReg idtr;
 	
+	bool INTR;	
+	
 	CR0 cr0;
 	uint32_t cr2;
 	CR3 cr3;
